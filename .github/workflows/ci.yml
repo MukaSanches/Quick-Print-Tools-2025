@@ -19,5 +19,5 @@ jobs:
           if (!(Test-Path src/QuickPrintStudio.Addon/CorelDrw.addon)) { throw "CorelDrw.addon missing" }
           [xml](Get-Content src/QuickPrintStudio.Addon/AppUI.xslt -Raw) | Out-Null
           [xml](Get-Content src/QuickPrintStudio.Addon/Views/DockerView.xaml -Raw) | Out-Null
-          if (!(Test-Path installer/QuickPrintStudio.nsi) { throw "Installer source missing" }
+          if (!(Test-Path installer/QuickPrintStudio.nsi)) { throw "Installer source missing" }
           if ((Get-Content VERSION -Raw).Trim() -ne "1.0.0") { throw "VERSION must be 1.0.0" }
