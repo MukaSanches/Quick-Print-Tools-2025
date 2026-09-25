@@ -17,12 +17,12 @@ Remove-Item $dist -Recurse -Force -ErrorAction SilentlyContinue
 New-Item $dist -ItemType Directory -Force | Out-Null
 Copy-Item "$repo\src\QuickPrintStudio.Addon\CorelDrw.addon" $dist
 Copy-Item "$repo\src\QuickPrintStudio.Addon\AppUI.xslt" $dist
-Copy-Item "$repo\src\QuickPrintStudio.Addon\bin\Release\net48\QuickPrintStudio.dll" $dist
-Copy-Item "$repo\src\QuickPrintStudio.Addon\bin\Release\net48\QuickPrintStudio.Core.dll" $dist
+Copy-Item "$repo\src\QuickPrintStudio.Addon\bin\x64\Release\net48\QuickPrintStudio.dll" $dist
+Copy-Item "$repo\src\QuickPrintStudio.Addon\bin\x64\Release\net48\QuickPrintStudio.Core.dll" $dist
 Copy-Item "$repo\VERSION" $dist
 
 $makensis = @(
- "$env:ProgramFiles(x86)\NSIS\makensis.exe",
+ "${env:ProgramFiles(x86)}\NSIS\makensis.exe",
  "$env:ProgramFiles\NSIS\makensis.exe"
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $makensis) { throw "NSIS nao encontrado." }
