@@ -1,0 +1,17 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  core:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - run: dotnet test tests/QuickPrintStudio.Core.Tests/QuickPrintStudio.Core.Tests.csproj -c Release
+      - name: Validate addon XML/XAML
+        shell: pwsh
+        run: |
+          if (!(Test-Path src/QuickPrintStudio.Addon/CorelDrw.addon)) { throw "CorelDrw.addon missing" }
+          [xml](Get-Content src/QuickPrintStudio.Addon/AppUI.xslt -Raw) | Out-Null
+          [xml](Get-Content src/QuickPrintStudio.Addon/Views/DockerView.xaml -Raw) | Out-Null
