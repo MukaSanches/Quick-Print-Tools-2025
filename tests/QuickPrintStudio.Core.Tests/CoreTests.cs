@@ -15,4 +15,8 @@ public sealed class CoreTests
  [Fact] public void Measurement_OneSquareMeter(){ var r=new MeasurementService().FromMillimeters(1000,1000); Assert.Equal(1,r.AreaSquareMeters,6); Assert.Equal(4,r.PerimeterMeters,6); }
  [Fact] public void StepRepeat_ReturnsEveryPosition(){ var p=new StepRepeatService().Calculate(3,2,90,50,3,3); Assert.Equal(6,p.Count); Assert.Equal((186d,53d),p.Last()); }
  [Fact] public void BuiltInPresets_HaveBeginnerAndLargeFormatOptions(){ Assert.Contains(BuiltInPresets.All,x=>x.Name=="Cartão de visita"); Assert.Contains(BuiltInPresets.All,x=>x.Name.Contains("grande formato")); }
+ [Fact] public void Preflight_FindsOutsidePageObjects(){ var r=new PreflightEngine().Analyze(new DocumentSnapshot{HasDocument=true,HasBleed=true,OutsidePageObjectCount=2}); Assert.Contains(r.Findings,x=>x.Code=="OUTSIDE_PAGE"); }
+ [Fact] public void Preflight_FindsThinOutlines(){ var r=new PreflightEngine().Analyze(new DocumentSnapshot{HasDocument=true,HasBleed=true,ThinOutlineCount=3}); Assert.Contains(r.Findings,x=>x.Code=="THIN_OUTLINE"); }
+ [Fact] public void Preflight_TransparencyIsInformational(){ var r=new PreflightEngine().Analyze(new DocumentSnapshot{HasDocument=true,HasBleed=true,TransparencyObjectCount=1}); Assert.Contains(r.Findings,x=>x.Code=="TRANSPARENCY" && x.Severity==FindingSeverity.Info); }
 }
+
