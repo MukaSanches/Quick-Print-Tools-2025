@@ -1,0 +1,62 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  portable-package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Test production core
+        run: dotnet test tests/QuickPrintStudio.Core.Tests/QuickPrintStudio.Core.Tests.csproj -c Release
+      - name: Validate sources
+        shell: pwsh
+        run: |
+          [xml](Get-Content src/QuickPrintStudio.Addon/AppUI.xslt -Raw) | Out-Null
+          [xml](Get-Content src/QuickPrintStudio.Addon/Views/DockerView.xaml -Raw) | Out-Null
+      - name: Prepare source package
+        shell: pwsh
+        run: |
+          New-Item package -ItemType Directory -Force | Out-Null
+          Copy-Item src package/src -Recurse
+          Copy-Item build package/build -Recurse
+          Copy-Item installer package/installer -Recurse
+          Copy-Item docs package/docs -Recurse
+          Copy-Item VERSION,README.md package/
+          Compress-Archive -Path package/* -DestinationPath QuickPrintStudio-1.0.0-Source-Package.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuickPrintStudio-1.0.0-Source-Package
+          path: QuickPrintStudio-1.0.0-Source-Package.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: portable-package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: QuickPrintStudio-1.0.0-Source-Package
+      - name: Publish immutable GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Quick Print Studio 1.0.0
+          body: |
+            Quick Print Studio 1.0.0.
+
+            This release preserves its files permanently. Future versions must use new versioned releases and must not overwrite previous installers.
+
+            Note: the source package is CI-validated. The final CorelDRAW installer requires a Windows build machine with CorelDRAW 2025/VGCore installed.
+          files: QuickPrintStudio-1.0.0-Source-Package.zip
