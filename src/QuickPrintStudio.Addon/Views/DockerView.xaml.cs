@@ -26,8 +26,8 @@ namespace QuickPrintStudio.Addon.Views
 
         private void RefreshDocument()
         {
-            DocumentNameText.Text = "Quick Print Studio 1.0";
-            DocumentMetaText.Text = "Painel carregado. Recursos independentes estão disponíveis; ações VGCore ficam protegidas até a integração real ser validada.";
+            DocumentNameText.Text = "Quick Print Studio 1.1";
+            DocumentMetaText.Text = "Central 1.1 carregada. O motor de produção e os diagnósticos estão ativos; operações que modificam o documento permanecem protegidas até validação no host CorelDRAW.";
         }
 
         private DocumentSnapshot CaptureSnapshot()
