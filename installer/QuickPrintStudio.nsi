@@ -9,38 +9,58 @@ ShowInstDetails show
 ShowUninstDetails show
 !include "LogicLib.nsh"
 !include "x64.nsh"
+!include "MUI2.nsh"
 
 Var CorelRoot
 Var AddonDir
 Var VGCorePath
 
-Function DetectCorel
-  StrCpy $CorelRoot ""
-  ${If} ${RunningX64}
-    SetRegView 64
-  ${EndIf}
-  ReadRegStr $CorelRoot HKLM "SOFTWARE\Corel\CorelDRAW\26.0" "InstallDir"
-  ${If} $CorelRoot == ""
-    StrCpy $0 "$PROGRAMFILES64\Corel\CorelDRAW Graphics Suite 2025\Programs64"
-    IfFileExists "$0\CorelDRW.exe" 0 +2
-      StrCpy $CorelRoot "$0"
-  ${EndIf}
-  ${If} $CorelRoot == ""
-    MessageBox MB_ICONSTOP "CorelDRAW 2025 64-bit nao foi encontrado. Nada foi alterado."
-    Abort
-  ${EndIf}
-  IfFileExists "$CorelRoot\CorelDRW.exe" +2 0
-    MessageBox MB_ICONSTOP "A pasta detectada nao contem CorelDRW.exe. Instalacao cancelada."
-    Abort
+!define MUI_ABORTWARNING
+!define MUI_DIRECTORYPAGE_TEXT_TOP "Selecione a pasta onde o CorelDRAW esta instalado. Escolha a pasta que contem CorelDRW.exe (normalmente Programs64). O Quick Print Studio fara o restante automaticamente."
+!define MUI_DIRECTORYPAGE_VARIABLE $CorelRoot
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+!insertmacro MUI_LANGUAGE "PortugueseBR"
+
+Function .onInit
+  StrCpy $CorelRoot "$PROGRAMFILES64\Corel\CorelDRAW Graphics Suite 2025\Programs64"
+FunctionEnd
+
+Function ValidateCorelFolder
+  IfFileExists "$CorelRoot\CorelDRW.exe" corel_ok 0
+  MessageBox MB_ICONSTOP "Essa pasta nao parece ser a pasta do CorelDRAW. Selecione a pasta que contem CorelDRW.exe."
+  Abort
+corel_ok:
+  StrCpy $VGCorePath ""
+  IfFileExists "$CorelRoot\Assemblies\Corel.Interop.VGCore.dll" 0 +3
+    StrCpy $VGCorePath "$CorelRoot\Assemblies\Corel.Interop.VGCore.dll"
+    Goto vg_done
+  IfFileExists "$CorelRoot\Corel.Interop.VGCore.dll" 0 +3
+    StrCpy $VGCorePath "$CorelRoot\Corel.Interop.VGCore.dll"
+    Goto vg_done
+  ; A versao atual nao redistribui a DLL proprietaria. Registra ausencia para diagnostico,
+  ; mas o instalador do painel pode continuar porque o binario nao possui referencia de build a VGCore.
+  DetailPrint "Aviso: Corel.Interop.VGCore.dll nao encontrada nesta pasta."
+vg_done:
   StrCpy $AddonDir "$CorelRoot\Addons\QuickPrintStudio"
 FunctionEnd
 
 Section "Quick Print Studio" SEC01
-  Call DetectCorel
+  Call ValidateCorelFolder
   SetOutPath "$AddonDir"
   File /r "..\dist\addon\*.*"
+
   SetOutPath "$INSTDIR"
+  FileOpen $0 "$INSTDIR\CorelIntegration.txt" w
+  FileWrite $0 "CorelDRAW=$CorelRoot$\r$\n"
+  FileWrite $0 "VGCore=$VGCorePath$\r$\n"
+  FileClose $0
   WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+  SetRegView 64
+  WriteRegStr HKLM "Software\QuickPrintStudio" "CorelRoot" "$CorelRoot"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\QuickPrintStudio" "DisplayName" "${PRODUCT}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\QuickPrintStudio" "DisplayVersion" "${VERSION}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\QuickPrintStudio" "Publisher" "MukaSanches"
@@ -49,13 +69,14 @@ SectionEnd
 
 Section "Uninstall"
   SetRegView 64
-  ReadRegStr $CorelRoot HKLM "SOFTWARE\Corel\CorelDRAW\26.0" "InstallDir"
-  ${If} $CorelRoot == ""
-    StrCpy $CorelRoot "$PROGRAMFILES64\Corel\CorelDRAW Graphics Suite 2025\Programs64"
+  ReadRegStr $CorelRoot HKLM "Software\QuickPrintStudio" "CorelRoot"
+  ${If} $CorelRoot != ""
+    StrCpy $AddonDir "$CorelRoot\Addons\QuickPrintStudio"
+    RMDir /r "$AddonDir"
   ${EndIf}
-  StrCpy $AddonDir "$CorelRoot\Addons\QuickPrintStudio"
-  RMDir /r "$AddonDir"
+  Delete "$INSTDIR\CorelIntegration.txt"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
+  DeleteRegKey HKLM "Software\QuickPrintStudio"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\QuickPrintStudio"
 SectionEnd
