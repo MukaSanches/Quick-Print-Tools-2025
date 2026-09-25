@@ -37,7 +37,19 @@ jobs:
         shell: pwsh
         run: |
           Push-Location installer
-          & "$env:ProgramFiles(x86)\NSIS\makensis.exe" QuickPrintStudio.nsi
+          $makensis = (Get-Command makensis.exe -ErrorAction SilentlyContinue).Source
+          if (-not $makensis) {
+            $candidates = @(
+              "${env:ProgramFiles(x86)}\NSIS\makensis.exe",
+              "$env:ProgramFiles\NSIS\makensis.exe",
+              "C:\ProgramData\chocolatey\bin\makensis.exe"
+            )
+            $makensis = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+          if (-not $makensis) { throw "makensis.exe not found after NSIS installation" }
+          Write-Host "Using NSIS: $makensis"
+          & $makensis QuickPrintStudio.nsi
+          if ($LASTEXITCODE -ne 0) { throw "NSIS failed with exit code $LASTEXITCODE" }
           Pop-Location
           if (!(Test-Path installer/QuickPrintStudio-1.0.0-Setup.exe)) { throw "Installer was not generated" }
       - uses: actions/upload-artifact@v4
