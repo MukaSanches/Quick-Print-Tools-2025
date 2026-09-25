@@ -1,8 +1,8 @@
 Unicode true
 !define PRODUCT "Quick Print Studio"
-!define VERSION "1.0.0"
+!define VERSION "1.1.0"
 Name "${PRODUCT} ${VERSION}"
-OutFile "QuickPrintStudio-1.0.0-Setup.exe"
+OutFile "QuickPrintStudio-1.1.0-Setup.exe"
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES64\Quick Print Studio"
 ShowInstDetails show
