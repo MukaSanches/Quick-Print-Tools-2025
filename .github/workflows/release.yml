@@ -3,6 +3,8 @@ name: Build and Release
 on:
   workflow_dispatch:
   push:
+    branches:
+      - 'v*'
     tags:
       - 'v*'
 
@@ -40,7 +42,7 @@ jobs:
           path: QuickPrintStudio-1.0.0-Source-Package.zip
 
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/v')
     needs: portable-package
     runs-on: ubuntu-latest
     steps:
