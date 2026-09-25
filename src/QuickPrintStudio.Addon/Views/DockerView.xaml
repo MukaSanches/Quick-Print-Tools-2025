@@ -2,7 +2,7 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  MinWidth="300" MinHeight="480" Background="#17191D"
- AutomationProperties.Name="Quick Print Studio 1.0">
+ AutomationProperties.Name="Quick Print Studio 1.1">
  <UserControl.Resources>
   <SolidColorBrush x:Key="Text" Color="#F5F7FA"/>
   <SolidColorBrush x:Key="Muted" Color="#AEB5C0"/>
@@ -18,7 +18,7 @@
   <DockPanel>
    <StackPanel>
     <TextBlock Text="QUICK PRINT STUDIO" FontSize="18" FontWeight="Bold" Foreground="{StaticResource Text}"/>
-    <TextBlock Text="CorelDRAW 2025 • versão 1.0" Foreground="{StaticResource Muted}" Margin="0,2,0,10"/>
+    <TextBlock Text="CorelDRAW 2025 • versão 1.1" Foreground="{StaticResource Muted}" Margin="0,2,0,10"/>
    </StackPanel>
   </DockPanel>
   <TextBox Grid.Row="1" x:Name="SearchBox" MinHeight="38" Padding="10,7" TextChanged="SearchBox_OnTextChanged"
@@ -31,14 +31,14 @@
   <TabControl Grid.Row="3" x:Name="MainTabs" Margin="0,2,0,0">
    <TabItem Header="Início"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
     <TextBlock Text="Comece por aqui" FontSize="16" FontWeight="SemiBold"/>
-    <TextBlock Text="Analise a arte antes de produzir. O painel explica o que encontrou e por que isso importa." Margin="0,4,0,10"/>
+    <TextBlock Text="Central de produção 1.1: análise técnica, imposição, medidas, preparação e exportação organizadas em um único fluxo." Margin="0,4,0,10"/>
     <Button Content="Analisar documento" Click="Analyze_OnClick"/>
     <Button Content="Fluxo guiado de produção" Click="OpenProduction_OnClick"/>
     <TextBlock Text="Ferramentas encontradas" FontWeight="SemiBold" Margin="0,14,0,5"/><ItemsControl x:Name="SearchResults"/>
    </StackPanel></ScrollViewer></TabItem>
    <TabItem Header="Preflight"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
     <TextBlock Text="Preflight" FontSize="16" FontWeight="SemiBold"/>
-    <TextBlock Text="Verifica pontos que costumam causar surpresa na impressão: cores, imagens, fontes e sangria." Margin="0,4,0,8"/>
+    <TextBlock Text="Motor 1.1 verifica cores, imagens, fontes, sangria, objetos fora da página, contornos finos e transparências." Margin="0,4,0,8"/>
     <Button Content="Executar análise" Click="Analyze_OnClick"/>
     <ItemsControl x:Name="ResultsList"/>
    </StackPanel></ScrollViewer></TabItem>
