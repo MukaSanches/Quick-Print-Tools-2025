@@ -51,17 +51,17 @@ jobs:
           & $makensis QuickPrintStudio.nsi
           if ($LASTEXITCODE -ne 0) { throw "NSIS failed with exit code $LASTEXITCODE" }
           Pop-Location
-          if (!(Test-Path installer/QuickPrintStudio-1.2.0-Setup.exe)) { throw "Installer was not generated" }
+          if (!(Test-Path installer/QuickPrintStudio-1.3.0-Setup.exe)) { throw "Installer was not generated" }
       - uses: actions/upload-artifact@v4
         with:
-          name: QuickPrintStudio-1.2.0-Setup
-          path: installer/QuickPrintStudio-1.2.0-Setup.exe
+          name: QuickPrintStudio-1.3.0-Setup
+          path: installer/QuickPrintStudio-1.3.0-Setup.exe
       - name: Attach installer to release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.2.0
-          files: installer/QuickPrintStudio-1.2.0-Setup.exe
+          tag_name: v1.3.0
+          files: installer/QuickPrintStudio-1.3.0-Setup.exe
           append_body: true
           body: |
-            Windows installer: QuickPrintStudio-1.2.0-Setup.exe
+            Windows installer: QuickPrintStudio-1.3.0-Setup.exe
             Setup intelligently detects CorelDRAW 2025 from registry and validated default locations, then falls back to user folder selection. Corel proprietary DLLs are not redistributed.
