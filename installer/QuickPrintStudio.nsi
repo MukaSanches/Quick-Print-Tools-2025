@@ -1,8 +1,8 @@
 Unicode true
 !define PRODUCT "Quick Print Studio"
-!define VERSION "1.1.0"
+!define VERSION "1.2.0"
 Name "${PRODUCT} ${VERSION}"
-OutFile "QuickPrintStudio-1.1.0-Setup.exe"
+OutFile "QuickPrintStudio-1.2.0-Setup.exe"
 RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES64\Quick Print Studio"
 ShowInstDetails show
@@ -16,7 +16,7 @@ Var AddonDir
 Var VGCorePath
 
 !define MUI_ABORTWARNING
-!define MUI_DIRECTORYPAGE_TEXT_TOP "Selecione a pasta onde o CorelDRAW esta instalado. Escolha a pasta que contem CorelDRW.exe (normalmente Programs64). O Quick Print Studio fara o restante automaticamente."
+!define MUI_DIRECTORYPAGE_TEXT_TOP "CorelDRAW detectado automaticamente quando possivel. Confirme a pasta abaixo. Se estiver incorreta, selecione a pasta que contem CorelDRW.exe (normalmente Programs64)."
 !define MUI_DIRECTORYPAGE_VARIABLE $CorelRoot
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
@@ -25,7 +25,43 @@ Var VGCorePath
 !insertmacro MUI_LANGUAGE "PortugueseBR"
 
 Function .onInit
-  StrCpy $CorelRoot "$PROGRAMFILES64\Corel\CorelDRAW Graphics Suite 2025\Programs64"
+  StrCpy $CorelRoot ""
+  ${If} ${RunningX64}
+    SetRegView 64
+  ${EndIf}
+
+  ; 1) Prefer the official CorelDRAW 2025 registry location.
+  ReadRegStr $CorelRoot HKLM "SOFTWARE\Corel\CorelDRAW\26.0" "InstallDir"
+  IfFileExists "$CorelRoot\CorelDRW.exe" found 0
+  StrCpy $CorelRoot ""
+
+  ; 2) Some installations register the suite root instead of Programs64.
+  ReadRegStr $0 HKLM "SOFTWARE\Corel\CorelDRAW Graphics Suite\26.0" "InstallDir"
+  IfFileExists "$0\Programs64\CorelDRW.exe" 0 +3
+    StrCpy $CorelRoot "$0\Programs64"
+    Goto found
+  IfFileExists "$0\CorelDRW.exe" 0 +3
+    StrCpy $CorelRoot "$0"
+    Goto found
+
+  ; 3) Validate known 64-bit default locations.
+  StrCpy $0 "$PROGRAMFILES64\Corel\CorelDRAW Graphics Suite 2025\Programs64"
+  IfFileExists "$0\CorelDRW.exe" 0 +3
+    StrCpy $CorelRoot "$0"
+    Goto found
+  StrCpy $0 "$PROGRAMFILES64\Corel\CorelDRAW Graphics Suite\Programs64"
+  IfFileExists "$0\CorelDRW.exe" 0 +3
+    StrCpy $CorelRoot "$0"
+    Goto found
+
+  ; 4) Nothing reliable found: give the user a useful starting folder.
+  StrCpy $CorelRoot "$PROGRAMFILES64\Corel"
+  MessageBox MB_ICONINFORMATION "O Quick Print Studio nao encontrou automaticamente uma instalacao valida do CorelDRAW 2025. Na proxima tela, selecione a pasta que contem CorelDRW.exe (normalmente Programs64)."
+  Goto done
+
+found:
+  DetailPrint "CorelDRAW encontrado automaticamente: $CorelRoot"
+done:
 FunctionEnd
 
 Function ValidateCorelFolder
