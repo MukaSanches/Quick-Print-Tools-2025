@@ -1,11 +1,94 @@
-<UserControl x:Class="QuickPrintStudio.Addon.Views.DockerView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" MinWidth="280" MinHeight="420" Background="{DynamicResource QpsBackgroundBrush}" AutomationProperties.Name="Quick Print Studio">
+<UserControl x:Class="QuickPrintStudio.Addon.Views.DockerView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ MinWidth="300" MinHeight="480" Background="#17191D"
+ AutomationProperties.Name="Quick Print Studio 1.0">
  <UserControl.Resources>
-  <SolidColorBrush x:Key="QpsBackgroundBrush" Color="#202124"/><SolidColorBrush x:Key="QpsSurfaceBrush" Color="#2B2D31"/><SolidColorBrush x:Key="QpsTextBrush" Color="#F4F4F5"/><SolidColorBrush x:Key="QpsMutedBrush" Color="#B7BAC1"/>
-  <Style TargetType="Button"><Setter Property="MinHeight" Value="40"/><Setter Property="Margin" Value="0,4"/><Setter Property="Padding" Value="12,8"/><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="KeyboardNavigation.IsTabStop" Value="True"/></Style>
+  <SolidColorBrush x:Key="Text" Color="#F5F7FA"/>
+  <SolidColorBrush x:Key="Muted" Color="#AEB5C0"/>
+  <SolidColorBrush x:Key="Surface" Color="#22262D"/>
+  <Style TargetType="Button">
+   <Setter Property="MinHeight" Value="42"/><Setter Property="Margin" Value="0,3"/>
+   <Setter Property="Padding" Value="12,8"/><Setter Property="HorizontalContentAlignment" Value="Left"/>
+  </Style>
+  <Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/></Style>
  </UserControl.Resources>
- <Grid Margin="14"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-  <StackPanel><TextBlock Text="QUICK PRINT STUDIO" FontSize="17" FontWeight="SemiBold" Foreground="{DynamicResource QpsTextBrush}"/><TextBlock Text="Produção gráfica assistida para CorelDRAW 2025" Margin="0,4,0,12" TextWrapping="Wrap" Foreground="{DynamicResource QpsMutedBrush}"/><TextBox x:Name="SearchBox" MinHeight="36" Padding="10,6" TextChanged="SearchBox_OnTextChanged" ToolTip="Digite o que você quer fazer. Ex.: marca de corte, medir banner, exportar PDF." AutomationProperties.Name="Buscar ferramenta"/></StackPanel>
-  <Border Grid.Row="1" Background="{DynamicResource QpsSurfaceBrush}" CornerRadius="8" Padding="12" Margin="0,12"><StackPanel><TextBlock x:Name="DocumentNameText" Text="Nenhum documento aberto" FontWeight="SemiBold" Foreground="{DynamicResource QpsTextBrush}" TextWrapping="Wrap"/><TextBlock x:Name="DocumentMetaText" Text="Abra um documento para começar." Margin="0,4,0,0" Foreground="{DynamicResource QpsMutedBrush}" TextWrapping="Wrap"/></StackPanel></Border>
-  <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel><TextBlock Text="AÇÕES PRINCIPAIS" Margin="0,4,0,6" FontWeight="SemiBold" Foreground="{DynamicResource QpsMutedBrush}"/><Button Content="Analisar documento" Click="Analyze_OnClick" ToolTip="Verifica cores, imagens, fontes e outros pontos que podem causar problemas na produção."/><Button Content="Preparar produção" IsEnabled="False" ToolTip="Assistente guiado para sangria, marcas, cores e outras etapas."/><Button Content="Fazer imposição" IsEnabled="False" ToolTip="Organiza várias cópias da arte na folha, respeitando margens e espaçamento."/><Button Content="Exportar" IsEnabled="False" ToolTip="Exporta o trabalho usando um preset de produção."/><TextBlock Text="RESULTADOS" Margin="0,16,0,6" FontWeight="SemiBold" Foreground="{DynamicResource QpsMutedBrush}"/><ItemsControl x:Name="ResultsList"/><TextBlock Text="FERRAMENTAS" Margin="0,16,0,6" FontWeight="SemiBold" Foreground="{DynamicResource QpsMutedBrush}"/><ItemsControl x:Name="SearchResults"/></StackPanel></ScrollViewer>
+ <Grid Margin="14">
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <DockPanel>
+   <StackPanel>
+    <TextBlock Text="QUICK PRINT STUDIO" FontSize="18" FontWeight="Bold" Foreground="{StaticResource Text}"/>
+    <TextBlock Text="CorelDRAW 2025 • versão 1.0" Foreground="{StaticResource Muted}" Margin="0,2,0,10"/>
+   </StackPanel>
+  </DockPanel>
+  <TextBox Grid.Row="1" x:Name="SearchBox" MinHeight="38" Padding="10,7" TextChanged="SearchBox_OnTextChanged"
+    ToolTip="Busque pelo que deseja fazer. Ex.: cartão na folha, sangria, medir banner, PDF."
+    AutomationProperties.Name="Buscar ferramentas do Quick Print Studio"/>
+  <Border Grid.Row="2" Background="{StaticResource Surface}" CornerRadius="8" Padding="10" Margin="0,10">
+   <StackPanel><TextBlock x:Name="DocumentNameText" Foreground="{StaticResource Text}" FontWeight="SemiBold"/>
+    <TextBlock x:Name="DocumentMetaText" Foreground="{StaticResource Muted}" Margin="0,3,0,0"/></StackPanel>
+  </Border>
+  <TabControl Grid.Row="3" x:Name="MainTabs" Margin="0,2,0,0">
+   <TabItem Header="Início"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="Comece por aqui" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Analise a arte antes de produzir. O painel explica o que encontrou e por que isso importa." Margin="0,4,0,10"/>
+    <Button Content="Analisar documento" Click="Analyze_OnClick"/>
+    <Button Content="Fluxo guiado de produção" Click="OpenProduction_OnClick"/>
+    <TextBlock Text="Ferramentas encontradas" FontWeight="SemiBold" Margin="0,14,0,5"/><ItemsControl x:Name="SearchResults"/>
+   </StackPanel></ScrollViewer></TabItem>
+   <TabItem Header="Preflight"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="Preflight" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Verifica pontos que costumam causar surpresa na impressão: cores, imagens, fontes e sangria." Margin="0,4,0,8"/>
+    <Button Content="Executar análise" Click="Analyze_OnClick"/>
+    <ItemsControl x:Name="ResultsList"/>
+   </StackPanel></ScrollViewer></TabItem>
+   <TabItem Header="Produção"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="Preparar produção" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Presets ajudam iniciantes; controles diretos deixam o fluxo rápido para operadores experientes." Margin="0,4,0,8"/>
+    <ComboBox x:Name="PresetBox" MinHeight="36"/>
+    <Button Content="Sangria e marcas de corte" ToolTip="Configura a sobra da arte e referências para acabamento."/>
+    <Button Content="Imposição / Step &amp; Repeat" Click="OpenImposition_OnClick"/>
+    <Button Content="PowerClip e organização" ToolTip="Ferramentas para organizar conteúdo e recipientes PowerClip."/>
+   </StackPanel></ScrollViewer></TabItem>
+   <TabItem Header="Imposição"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="Calculadora de imposição" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Informe folha, arte, margem e espaçamento para calcular quantas peças cabem." Margin="0,4,0,8"/>
+    <UniformGrid Columns="2">
+     <TextBlock Text="Folha L (mm)"/><TextBox x:Name="SheetW" Text="320"/>
+     <TextBlock Text="Folha A (mm)"/><TextBox x:Name="SheetH" Text="450"/>
+     <TextBlock Text="Arte L (mm)"/><TextBox x:Name="ItemW" Text="90"/>
+     <TextBlock Text="Arte A (mm)"/><TextBox x:Name="ItemH" Text="50"/>
+     <TextBlock Text="Espaço (mm)"/><TextBox x:Name="Gap" Text="3"/>
+     <TextBlock Text="Margem (mm)"/><TextBox x:Name="Margin" Text="5"/>
+    </UniformGrid>
+    <Button Content="Calcular aproveitamento" Click="CalculateImposition_OnClick"/>
+    <TextBlock x:Name="ImpositionResultText" FontWeight="SemiBold" Margin="0,8"/>
+   </StackPanel></ScrollViewer></TabItem>
+   <TabItem Header="Medidas"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="Medidas e custo técnico" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Converte largura e altura em área e perímetro. Útil para banner, adesivo e materiais vendidos por metro." Margin="0,4,0,8"/>
+    <TextBox x:Name="MeasureW" Text="1000" ToolTip="Largura em milímetros"/><TextBox x:Name="MeasureH" Text="1000" ToolTip="Altura em milímetros"/>
+    <Button Content="Calcular área e perímetro" Click="CalculateMeasure_OnClick"/>
+    <TextBlock x:Name="MeasureResultText" FontWeight="SemiBold" Margin="0,8"/>
+   </StackPanel></ScrollViewer></TabItem>
+   <TabItem Header="QR"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="QR Code" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Área preparada para QR vetorial: PIX, WhatsApp, URL, texto, OS e etiquetas." Margin="0,4,0,8"/>
+    <TextBox x:Name="QrContent" MinHeight="70" AcceptsReturn="True" TextWrapping="Wrap"/>
+    <Button Content="Gerar QR vetorial" IsEnabled="False" ToolTip="Será habilitado após a integração vetorial VGCore ser validada no CorelDRAW 2025."/>
+   </StackPanel></ScrollViewer></TabItem>
+   <TabItem Header="Exportar"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="Exportar para produção" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Nomenclatura padronizada e espaço para presets PDF, PNG e JPG." Margin="0,4,0,8"/>
+    <TextBox x:Name="OrderId" ToolTip="Número da OS"/><TextBox x:Name="Customer" ToolTip="Cliente"/><TextBox x:Name="Product" ToolTip="Produto"/>
+    <Button Content="Pré-visualizar nome do PDF" Click="PreviewFileName_OnClick"/>
+    <TextBlock x:Name="FileNameText" Margin="0,8" FontWeight="SemiBold"/>
+    <Button Content="Publicar PDF" IsEnabled="False" ToolTip="Habilitado somente quando a integração VGCore real estiver disponível."/>
+   </StackPanel></ScrollViewer></TabItem>
+   <TabItem Header="Ajuda"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="10">
+    <TextBlock Text="Ajuda rápida" FontSize="16" FontWeight="SemiBold"/>
+    <TextBlock Text="Sangria: sobra além do corte.&#10;&#10;DPI: ajuda a avaliar a resolução da imagem.&#10;&#10;CMYK: modelo de cor comum em impressão.&#10;&#10;RGB: modelo usado principalmente em telas.&#10;&#10;Imposição: organiza várias cópias na folha.&#10;&#10;Preflight: revisão técnica antes de produzir."/>
+   </StackPanel></ScrollViewer></TabItem>
+  </TabControl>
  </Grid>
 </UserControl>
