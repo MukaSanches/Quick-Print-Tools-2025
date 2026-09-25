@@ -8,11 +8,7 @@
     <AssemblyName>QuickPrintStudio</AssemblyName>
     <RootNamespace>QuickPrintStudio.Addon</RootNamespace>
   </PropertyGroup>
-  <ItemGroup><ProjectReference Include="..\\QuickPrintStudio.Core\\QuickPrintStudio.Core.csproj" /></ItemGroup>
   <ItemGroup>
-    <Reference Include="Corel.Interop.VGCore" Condition="'$(VGCorePath)' != ''">
-      <HintPath>$(VGCorePath)</HintPath><EmbedInteropTypes>False</EmbedInteropTypes><Private>False</Private>
-    </Reference>
+    <ProjectReference Include="..\QuickPrintStudio.Core\QuickPrintStudio.Core.csproj" />
   </ItemGroup>
-  <Target Name="RequireVGCorePath" BeforeTargets="ResolveReferences" Condition="'$(VGCorePath)' == ''"><Message Importance="high" Text="VGCorePath não definido. Em uma máquina com CorelDRAW 2025, execute build\\Build.ps1 para detectar a instalação automaticamente." /></Target>
 </Project>
