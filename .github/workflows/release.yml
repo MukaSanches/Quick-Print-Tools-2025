@@ -1,75 +1,55 @@
-name: Build and Release
+name: Build Installer and Release
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - 'v*'
-    tags:
-      - 'v*'
+    branches: [ main ]
 
 permissions:
   contents: write
 
 jobs:
-  portable-package:
+  build-installer:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Test production core
+      - name: Install NSIS
+        shell: pwsh
+        run: choco install nsis -y --no-progress
+      - name: Test
         run: dotnet test tests/QuickPrintStudio.Core.Tests/QuickPrintStudio.Core.Tests.csproj -c Release
-      - name: Validate sources
+      - name: Build addon
         shell: pwsh
         run: |
+          dotnet build src/QuickPrintStudio.Addon/QuickPrintStudio.Addon.csproj -c Release -p:Platform=x64
           [xml](Get-Content src/QuickPrintStudio.Addon/AppUI.xslt -Raw) | Out-Null
           [xml](Get-Content src/QuickPrintStudio.Addon/Views/DockerView.xaml -Raw) | Out-Null
-      - name: Prepare source package
+          New-Item dist/addon -ItemType Directory -Force | Out-Null
+          Copy-Item src/QuickPrintStudio.Addon/CorelDrw.addon dist/addon/
+          Copy-Item src/QuickPrintStudio.Addon/AppUI.xslt dist/addon/
+          Copy-Item src/QuickPrintStudio.Addon/bin/Release/net48/QuickPrintStudio.dll dist/addon/
+          Copy-Item src/QuickPrintStudio.Addon/bin/Release/net48/QuickPrintStudio.Core.dll dist/addon/
+          Copy-Item VERSION dist/addon/
+      - name: Build installer
         shell: pwsh
         run: |
-          New-Item package -ItemType Directory -Force | Out-Null
-          Copy-Item src package/src -Recurse
-          Copy-Item build package/build -Recurse
-          Copy-Item installer package/installer -Recurse
-          Copy-Item docs package/docs -Recurse
-          Copy-Item VERSION,README.md package/
-          Compress-Archive -Path package/* -DestinationPath QuickPrintStudio-1.0.0-Source-Package.zip
+          Push-Location installer
+          & "$env:ProgramFiles(x86)\NSIS\makensis.exe" QuickPrintStudio.nsi
+          Pop-Location
+          if (!(Test-Path installer/QuickPrintStudio-1.0.0-Setup.exe)) { throw "Installer was not generated" }
       - uses: actions/upload-artifact@v4
         with:
-          name: QuickPrintStudio-1.0.0-Source-Package
-          path: QuickPrintStudio-1.0.0-Source-Package.zip
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/v')
-    needs: portable-package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download package
-        uses: actions/download-artifact@v4
-        with:
-          name: QuickPrintStudio-1.0.0-Source-Package
-      - name: Create release tag when triggered by version branch
-        if: startsWith(github.ref, 'refs/heads/v')
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -f v1.0.0 "$GITHUB_SHA"
-          git push origin refs/tags/v1.0.0 --force
-
-      - name: Publish immutable GitHub Release
+          name: QuickPrintStudio-1.0.0-Setup
+          path: installer/QuickPrintStudio-1.0.0-Setup.exe
+      - name: Attach installer to release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.0
-          target_commitish: ${{ github.sha }}
-          name: Quick Print Studio 1.0.0
+          files: installer/QuickPrintStudio-1.0.0-Setup.exe
+          append_body: true
           body: |
-            Quick Print Studio 1.0.0.
-
-            This release preserves its files permanently. Future versions must use new versioned releases and must not overwrite previous installers.
-
-            Note: the source package is CI-validated. The final CorelDRAW installer requires a Windows build machine with CorelDRAW 2025/VGCore installed.
-          files: QuickPrintStudio-1.0.0-Source-Package.zip
+            Windows installer: QuickPrintStudio-1.0.0-Setup.exe
+            It detects CorelDRAW 2025 and verifies the installed Corel.Interop.VGCore.dll. The proprietary Corel DLL is not redistributed.
