@@ -30,8 +30,8 @@ jobs:
           New-Item dist/addon -ItemType Directory -Force | Out-Null
           Copy-Item src/QuickPrintStudio.Addon/CorelDrw.addon dist/addon/
           Copy-Item src/QuickPrintStudio.Addon/AppUI.xslt dist/addon/
-          Copy-Item src/QuickPrintStudio.Addon/bin/Release/net48/QuickPrintStudio.dll dist/addon/
-          Copy-Item src/QuickPrintStudio.Addon/bin/Release/net48/QuickPrintStudio.Core.dll dist/addon/
+          Copy-Item src/QuickPrintStudio.Addon/bin/x64/Release/net48/QuickPrintStudio.dll dist/addon/
+          Copy-Item src/QuickPrintStudio.Addon/bin/x64/Release/net48/QuickPrintStudio.Core.dll dist/addon/
           Copy-Item VERSION dist/addon/
       - name: Build installer
         shell: pwsh
