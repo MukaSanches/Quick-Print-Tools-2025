@@ -12,6 +12,7 @@ ShowUninstDetails show
 
 Var CorelRoot
 Var AddonDir
+Var VGCorePath
 
 Function DetectCorel
   StrCpy $CorelRoot ""
