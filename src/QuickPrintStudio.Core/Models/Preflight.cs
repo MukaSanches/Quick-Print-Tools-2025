@@ -30,6 +30,11 @@ namespace QuickPrintStudio.Core.Models
         public int RgbObjectCount { get; set; }
         public int LowResolutionBitmapCount { get; set; }
         public int MissingFontCount { get; set; }
+        public int OutsidePageObjectCount { get; set; }
+        public int ThinOutlineCount { get; set; }
+        public int TransparencyObjectCount { get; set; }
+        public int TextObjectCount { get; set; }
+        public double MinimumBitmapDpi { get; set; } = 300;
         public bool HasBleed { get; set; }
         public bool HasDocument { get; set; }
     }
